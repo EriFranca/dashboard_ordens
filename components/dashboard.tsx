@@ -28,11 +28,29 @@ import {
 import { KpiCard } from "@/components/kpi-card"
 import { GraficoFluxo, GraficoStatus, GraficoMateriais, GraficoUnidade, GraficoCategoria } from "@/components/graficos"
 import { TabelaOrdens } from "@/components/tabela-ordens"
+import { DateRangePicker } from "@/components/date-range-picker"
+import { SyncStatus } from "@/components/sync-status"
+
+interface DateRange {
+  start: Date | null
+  end: Date | null
+}
 
 export function Dashboard() {
   const [filtros, setFiltros] = useState<Filtros>({ busca: "", status: "todos", unidade: "todas", categoria: "todas" })
+  const [dateRange, setDateRange] = useState<DateRange>({ start: null, end: null })
 
-  const lista = useMemo(() => filtrar(todasOrdens, filtros), [filtros])
+  // Filtrar por data
+  const ordensFiltradasPorData = useMemo(() => {
+    if (!dateRange.start || !dateRange.end) return todasOrdens
+
+    return todasOrdens.filter((ordem) => {
+      const dataAbertura = new Date(ordem.abertura)
+      return dataAbertura >= dateRange.start! && dataAbertura <= dateRange.end!
+    })
+  }, [dateRange])
+
+  const lista = useMemo(() => filtrar(ordensFiltradasPorData, filtros), [ordensFiltradasPorData, filtros])
   const r = useMemo(() => resumo(lista), [lista])
   const fluxo = useMemo(() => porDia(lista), [lista])
   const dist = useMemo(() => statusDistribuicao(lista), [lista])
@@ -42,6 +60,12 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Status de Sincronização */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+        <div className="lg:col-span-3" />
+        <SyncStatus />
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <KpiCard titulo="Ordens planejadas" valor={formatNumber(r.total)} sub="Centro 8001 · PP01" icon={Package} />
@@ -76,7 +100,7 @@ export function Dashboard() {
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -85,6 +109,9 @@ export function Dashboard() {
             onChange={(e) => setFiltros((f) => ({ ...f, busca: e.target.value }))}
             className="pl-9"
           />
+        </div>
+        <div className="sm:max-w-xs">
+          <DateRangePicker value={dateRange} onChange={setDateRange} label="Período" />
         </div>
         <Select
           value={filtros.status}
