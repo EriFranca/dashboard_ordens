@@ -44,7 +44,7 @@ export function TabelaOrdens({ ordens }: { ordens: Ordem[] }) {
               <TableHead>Ordem</TableHead>
               <TableHead className="min-w-[220px]">Material</TableHead>
               <TableHead className="text-right">Planejado</TableHead>
-              <TableHead className="text-right">Recebido</TableHead>
+              <TableHead className="text-right">Confirmado</TableHead>
               <TableHead className="text-right">Atend.</TableHead>
               <TableHead className="text-right">Valor EM</TableHead>
               <TableHead>Abertura</TableHead>
@@ -55,7 +55,7 @@ export function TabelaOrdens({ ordens }: { ordens: Ordem[] }) {
           <TableBody>
             {visiveis.map((o) => {
               const st = statusDe(o)
-              const atend = o.qtd > 0 ? (o.qtdEntrada / o.qtd) * 100 : 0
+              const atend = o.qtdPlan > 0 ? (o.qtdEntrada / o.qtdPlan) * 100 : 0
               const info = getMaterialInfo(o.material)
               return (
                 <TableRow key={o.ordem}>
@@ -67,7 +67,7 @@ export function TabelaOrdens({ ordens }: { ordens: Ordem[] }) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {formatNumber(o.qtd, o.unid === "KG" ? 2 : 0)} <span className="text-muted-foreground">{o.unid}</span>
+                    {formatNumber(o.qtdPlan, o.unid === "KG" ? 2 : 0)} <span className="text-muted-foreground">{o.unid}</span>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {formatNumber(o.qtdEntrada, o.unid === "KG" ? 2 : 0)}

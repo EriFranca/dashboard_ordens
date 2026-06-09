@@ -71,14 +71,14 @@ export function Dashboard() {
         <KpiCard
           titulo="Qtd. planejada"
           valor={formatNumber(r.totalQtd)}
-          sub={`${formatNumber(r.totalEntrada)} recebido`}
+          sub={`${formatNumber(r.totalEntrada)} confirmado`}
           icon={Boxes}
           acento="primary"
         />
         <KpiCard
           titulo="Taxa de atendimento"
           valor={`${formatNumber(r.taxaAtend)}%`}
-          sub="Recebido / planejado"
+          sub="Confirmado / planejado"
           icon={CheckCircle2}
           acento="verde"
         />

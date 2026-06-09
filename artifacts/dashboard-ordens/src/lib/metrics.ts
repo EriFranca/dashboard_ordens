@@ -4,7 +4,7 @@ import { getMaterialDescricao, getMaterialCategoria } from "./materiais"
 export type StatusRecebimento = "concluido" | "parcial" | "pendente"
 
 export function statusDe(o: Ordem): StatusRecebimento {
-  if (o.recebConcluido && o.qtdEntrada >= o.qtd && o.qtd > 0) return "concluido"
+  if (o.recebConcluido && o.qtdEntrada >= o.qtdPlan && o.qtdPlan > 0) return "concluido"
   if (o.qtdEntrada > 0) return "parcial"
   return "pendente"
 }
@@ -60,8 +60,8 @@ export function filtrar(lista: Ordem[], f: Filtros): Ordem[] {
 }
 
 export function resumo(lista: Ordem[]) {
-  const totalQtd = lista.reduce((a, o) => a + o.qtd, 0)
-  const totalEntrada = lista.reduce((a, o) => a + o.qtdEntrada, 0)
+  const totalQtd = lista.reduce((a, o) => a + o.qtdPlan, 0)      // col V — planejado
+  const totalEntrada = lista.reduce((a, o) => a + o.qtdEntrada, 0) // col P — confirmado
   const totalValor = lista.reduce((a, o) => a + o.valor, 0)
   const concluidas = lista.filter((o) => statusDe(o) === "concluido").length
   const parciais = lista.filter((o) => statusDe(o) === "parcial").length
@@ -79,7 +79,7 @@ export function resumo(lista: Ordem[]) {
   }
 }
 
-// Quantidade planejada x recebida por dia (data de abertura)
+// Quantidade planejada x confirmada por dia (data de abertura)
 export function porDia(lista: Ordem[]) {
   const map = new Map<string, { planejado: number; recebido: number; ordem: number }>()
   for (const o of lista) {
@@ -87,8 +87,8 @@ export function porDia(lista: Ordem[]) {
     if (!d) continue
     const key = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`
     const cur = map.get(key) ?? { planejado: 0, recebido: 0, ordem: d.getTime() }
-    cur.planejado += o.qtd
-    cur.recebido += o.qtdEntrada
+    cur.planejado += o.qtdPlan      // col V
+    cur.recebido += o.qtdEntrada    // col P
     map.set(key, cur)
   }
   return [...map.entries()]
@@ -106,7 +106,7 @@ export function topMateriais(lista: Ordem[], n = 8) {
   const map = new Map<string, { qtd: number; valor: number; ordens: number }>()
   for (const o of lista) {
     const cur = map.get(o.material) ?? { qtd: 0, valor: 0, ordens: 0 }
-    cur.qtd += o.qtd
+    cur.qtd += o.qtdPlan    // col V — planejado
     cur.valor += o.valor
     cur.ordens += 1
     map.set(o.material, cur)
@@ -129,7 +129,7 @@ export function porCategoria(lista: Ordem[]) {
     const cur = map.get(cat) ?? { valor: 0, ordens: 0, qtd: 0 }
     cur.valor += o.valor
     cur.ordens += 1
-    cur.qtd += o.qtd
+    cur.qtd += o.qtdPlan    // col V — planejado
     map.set(cat, cur)
   }
   return [...map.entries()]
