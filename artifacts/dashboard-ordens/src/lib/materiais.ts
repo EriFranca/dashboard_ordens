@@ -117,6 +117,11 @@ export const materiaisInfo: Record<string, MaterialInfo> = {
   "251065": { descricao: "SALG FOLHADO FAB PROPRIA SALSICHA CG UN", categoria: "Salgados" },
   "255910": { descricao: "SONHO MASSA BASE PRD KG", categoria: "Doces & Especiais" },
   "251132": { descricao: "TORTA SALG FRANGO CG KG", categoria: "Salgados" },
+  "254255": { descricao: "CROSTATA ERVAS FINAS FAB PROPRIA KG", categoria: "Pães" },
+  "250674": { descricao: "PAO BRIOCHE FAB PROPRIA CREME KG", categoria: "Pães" },
+  "256358": { descricao: "PAO VOLLGUT INTEGRAL KG", categoria: "Pães" },
+  "251067": { descricao: "SALG RISOLE PIZZA CONG KG", categoria: "Salgados" },
+  "925011": { descricao: "RECHEIO RISOLE DE PIZZA BUFFET", categoria: "Recheio" },
 }
 
 export function getMaterialInfo(codigo: string): MaterialInfo {
