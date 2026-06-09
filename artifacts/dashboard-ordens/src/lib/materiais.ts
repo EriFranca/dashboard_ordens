@@ -122,6 +122,12 @@ export const materiaisInfo: Record<string, MaterialInfo> = {
   "256358": { descricao: "PAO VOLLGUT INTEGRAL KG", categoria: "Pães" },
   "251067": { descricao: "SALG RISOLE PIZZA CONG KG", categoria: "Salgados" },
   "925011": { descricao: "RECHEIO RISOLE DE PIZZA BUFFET", categoria: "Recheio" },
+  "250666": { descricao: "PAO BAGUETINHO CG KG", categoria: "Pães" },
+  "255378": { descricao: "PASTEL DE FRANGO CG UN", categoria: "Salgados" },
+  "255424": { descricao: "PAO FERM NAT TOMATE SECO CG KG", categoria: "Pães" },
+  "257128": { descricao: "BRIOCHE CALABRESA PESTO FAB PROP CG KG", categoria: "Pães" },
+  "2000090": { descricao: "MP FERMENTO FRESCO KG", categoria: "Matéria-prima" },
+  "2000093": { descricao: "MP FILE PEITO DE FRANGO KG", categoria: "Matéria-prima" },
 }
 
 export function getMaterialInfo(codigo: string): MaterialInfo {
