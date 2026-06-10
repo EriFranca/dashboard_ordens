@@ -2,14 +2,18 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 0.2.0
+  description: API specification - Monitor de Ordens Planejadas SAP
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: orders
+    description: Ordens de producao
+  - name: sap
+    description: Integracao com SAP
 paths:
   /healthz:
     get:
@@ -24,6 +28,105 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: Listar ordens de producao
+      parameters:
+        - name: centro
+          in: query
+          schema:
+            type: string
+        - name: material
+          in: query
+          schema:
+            type: string
+        - name: tipoOrdem
+          in: query
+          schema:
+            type: string
+        - name: busca
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5000
+            default: 1000
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Lista de ordens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+        "400":
+          description: Parametros invalidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sap/orders:
+    post:
+      operationId: syncSapOrders
+      tags: [sap]
+      summary: Receber batch de ordens do SAP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncOrdersPayload"
+      responses:
+        "200":
+          description: Ordens processadas com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncOrdersResponse"
+        "400":
+          description: Payload invalido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sap/sync:
+    post:
+      operationId: triggerSapSync
+      tags: [sap]
+      summary: Disparar sincronizacao SAP manual
+      responses:
+        "200":
+          description: Sync concluido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SapSyncStatus"
+    get:
+      operationId: getSapSyncStatus
+      tags: [sap]
+      summary: Status da ultima sincronizacao SAP
+      responses:
+        "200":
+          description: Status do sync
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SapSyncStatus"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +137,132 @@ components:
       required:
         - status
 
+    Ordem:
+      type: object
+      properties:
+        ordem:
+          type: string
+        op:
+          type: string
+        material:
+          type: string
+        unid:
+          type: string
+        qtd:
+          type: number
+        qtdEntrada:
+          type: number
+        qtdPlan:
+          type: number
+        desvio:
+          type: number
+        valor:
+          type: number
+        dtAbertura:
+          type: string
+        dtInicio:
+          type: string
+        dtRemessaPlan:
+          type: string
+        dtRemessaReal:
+          type: string
+        recebConcluido:
+          type: boolean
+        dataFim:
+          type: string
+        centro:
+          type: string
+        tipoOrdem:
+          type: string
+        sincronizadoEm:
+          type: string
+      required:
+        - ordem
+        - material
+        - unid
+        - qtd
+        - qtdEntrada
+        - qtdPlan
+        - desvio
+        - valor
+        - recebConcluido
+        - centro
+        - tipoOrdem
+
+    OrdersResponse:
+      type: object
+      properties:
+        ordens:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ordem"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      required:
+        - ordens
+        - total
+        - limit
+        - offset
+
+    SyncOrdersPayload:
+      type: object
+      properties:
+        ordens:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ordem"
+          minItems: 1
+        fonte:
+          type: string
+        timestamp:
+          type: string
+      required:
+        - ordens
+
+    SyncOrdersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        processados:
+          type: integer
+        fonte:
+          type: string
+        timestamp:
+          type: string
+      required:
+        - success
+        - processados
+        - timestamp
+
+    SapSyncStatus:
+      type: object
+      properties:
+        isRunning:
+          type: boolean
+        lastSync:
+          type: string
+        nextSync:
+          type: string
+        success:
+          type: boolean
+        message:
+          type: string
+        duration:
+          type: number
+        timestamp:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        success:
+          type: boolean
+      required:
+        - error

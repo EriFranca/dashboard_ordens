@@ -5,7 +5,11 @@
  * API specification - Monitor de Ordens Planejadas SAP
  * OpenAPI spec version: 0.2.0
  */
+import type { Ordem } from './ordem';
 
-export interface HealthStatus {
-  status: string;
+export interface SyncOrdersPayload {
+  /** @minItems 1 */
+  ordens: Ordem[];
+  fonte?: string;
+  timestamp?: string;
 }

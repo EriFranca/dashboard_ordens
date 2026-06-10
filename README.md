@@ -195,11 +195,11 @@ Content-Type: application/json
 
 ### O que precisa ser implementado neste repo para receber os dados
 
-- [ ] **Schema do banco** (`lib/db/src/schema/index.ts`) — tabela `ordens` com colunas correspondentes ao tipo `Ordem`
-- [ ] **Endpoint** `POST /api/sap/orders` — valida com Zod, faz upsert no PostgreSQL via Drizzle
-- [ ] **Endpoint** `GET /api/orders` — lista ordens com filtros opcionais (centro, material, status, período)
-- [ ] **OpenAPI spec** (`lib/api-spec/openapi.yaml`) — documentar os novos endpoints para gerar os hooks do frontend automaticamente
-- [ ] **Migrar dashboard** — substituir `data.ts` estático por chamadas à API via hooks gerados
+- [x] **Schema do banco** (`lib/db/src/schema/index.ts`) — tabela `ordens` com indexes em `material`, `centro`, `dt_abertura`
+- [x] **Endpoint** `POST /api/sap/orders` — valida cada ordem com drizzle-zod, faz upsert no PostgreSQL
+- [x] **Endpoint** `GET /api/orders` — lista ordens com filtros opcionais (`centro`, `material`, `tipoOrdem`, `busca`, `limit`, `offset`)
+- [x] **OpenAPI spec** (`lib/api-spec/openapi.yaml`) — endpoints documentados; hooks React gerados via Orval
+- [ ] **Migrar dashboard** — substituir `data.ts` estático por chamadas à API via hooks gerados (próximo passo após conectar API Python)
 
 ---
 
