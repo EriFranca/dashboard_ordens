@@ -29,20 +29,19 @@ import { GraficoFluxo, GraficoStatus, GraficoMateriais, GraficoUnidade, GraficoC
 import { TabelaOrdens } from "@/components/tabela-ordens"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { SyncStatus } from "@/components/sync-status"
+import type { View } from "@/App"
 
 interface DateRange {
   start: Date | null
   end: Date | null
 }
 
-export function Dashboard() {
+export function Dashboard({ view }: { view: View }) {
   const [filtros, setFiltros] = useState<Filtros>({ busca: "", status: "todos", unidade: "todas", categoria: "todas" })
   const [dateRange, setDateRange] = useState<DateRange>({ start: null, end: null })
 
-  // Filtrar por data
   const ordensFiltradasPorData = useMemo(() => {
     if (!dateRange.start || !dateRange.end) return todasOrdens
-
     return todasOrdens.filter((ordem) => {
       const dataAbertura = new Date(ordem.dtAbertura ?? '')
       return dataAbertura >= dateRange.start! && dataAbertura <= dateRange.end!
@@ -57,46 +56,68 @@ export function Dashboard() {
   const unidades = useMemo(() => porUnidade(lista), [lista])
   const categorias = useMemo(() => porCategoria(lista), [lista])
 
+  const kpis = (
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <KpiCard titulo="Ordens planejadas" valor={formatNumber(r.total)} sub="Centro 8001 · PP01" icon={Package} />
+      <KpiCard
+        titulo="Qtd. planejada"
+        valor={formatNumber(r.totalQtd)}
+        sub={`${formatNumber(r.totalEntrada)} confirmado`}
+        icon={Boxes}
+        acento="primary"
+      />
+      <KpiCard
+        titulo="Taxa de atendimento"
+        valor={`${formatNumber(r.taxaAtend)}%`}
+        sub="Confirmado / planejado"
+        icon={CheckCircle2}
+        acento="verde"
+      />
+      <KpiCard
+        titulo="Pendentes"
+        valor={formatNumber(r.pendentes)}
+        sub={`${formatNumber(r.parciais)} parciais`}
+        icon={Clock}
+        acento="ambar"
+      />
+      <KpiCard
+        titulo="Valor entrada (EM)"
+        valor={formatMoeda(r.totalValor)}
+        sub="Mercadoria recebida"
+        icon={CircleDollarSign}
+        acento="primary"
+      />
+    </div>
+  )
+
+  if (view === "visao-geral") {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+          <div className="lg:col-span-3" />
+          <SyncStatus />
+        </div>
+
+        {kpis}
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <GraficoFluxo data={fluxo} />
+          <GraficoStatus data={dist} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <GraficoMateriais data={mats} />
+          <GraficoUnidade data={unidades} />
+        </div>
+
+        <GraficoCategoria data={categorias} />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Status de Sincronização */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <div className="lg:col-span-3" />
-        <SyncStatus />
-      </div>
-
-      {/* KPIs */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <KpiCard titulo="Ordens planejadas" valor={formatNumber(r.total)} sub="Centro 8001 · PP01" icon={Package} />
-        <KpiCard
-          titulo="Qtd. planejada"
-          valor={formatNumber(r.totalQtd)}
-          sub={`${formatNumber(r.totalEntrada)} confirmado`}
-          icon={Boxes}
-          acento="primary"
-        />
-        <KpiCard
-          titulo="Taxa de atendimento"
-          valor={`${formatNumber(r.taxaAtend)}%`}
-          sub="Confirmado / planejado"
-          icon={CheckCircle2}
-          acento="verde"
-        />
-        <KpiCard
-          titulo="Pendentes"
-          valor={formatNumber(r.pendentes)}
-          sub={`${formatNumber(r.parciais)} parciais`}
-          icon={Clock}
-          acento="ambar"
-        />
-        <KpiCard
-          titulo="Valor entrada (EM)"
-          valor={formatMoeda(r.totalValor)}
-          sub="Mercadoria recebida"
-          icon={CircleDollarSign}
-          acento="primary"
-        />
-      </div>
+      {kpis}
 
       {/* Filtros */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -136,9 +157,7 @@ export function Dashboard() {
           <SelectContent>
             <SelectItem value="todas">Todas as unid.</SelectItem>
             {unidadesDisponiveis.map((u) => (
-              <SelectItem key={u} value={u}>
-                {u}
-              </SelectItem>
+              <SelectItem key={u} value={u}>{u}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -152,36 +171,13 @@ export function Dashboard() {
           <SelectContent>
             <SelectItem value="todas">Todas as categorias</SelectItem>
             {categoriasDisponiveis.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
+              <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Gráficos linha 1 */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <GraficoFluxo data={fluxo} />
-        <GraficoStatus data={dist} />
-      </div>
-
-      {/* Gráficos linha 2 */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <GraficoMateriais data={mats} />
-        <GraficoUnidade data={unidades} />
-      </div>
-
-      {/* Gráficos linha 3 */}
-      <GraficoCategoria data={categorias} />
-
-      {/* Tabela */}
-      <div className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Detalhe das ordens
-        </h2>
-        <TabelaOrdens ordens={lista} />
-      </div>
+      <TabelaOrdens ordens={lista} />
     </div>
   )
 }
