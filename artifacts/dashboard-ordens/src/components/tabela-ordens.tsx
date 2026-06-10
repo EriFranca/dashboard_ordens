@@ -23,6 +23,7 @@ const badgeStatus: Record<StatusRecebimento, string> = {
   concluido: "border-chart-3/30 bg-chart-3/10 text-chart-3",
   parcial: "border-chart-2/30 bg-chart-2/10 text-chart-2",
   pendente: "border-chart-4/30 bg-chart-4/10 text-chart-4",
+  extra: "border-purple-500/30 bg-purple-500/10 text-purple-400",
 }
 
 export function TabelaOrdens({ ordens }: { ordens: Ordem[] }) {

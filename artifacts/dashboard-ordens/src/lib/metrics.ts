@@ -1,9 +1,10 @@
 import { ordens, type Ordem } from "./data"
 import { getMaterialDescricao, getMaterialCategoria } from "./materiais"
 
-export type StatusRecebimento = "concluido" | "parcial" | "pendente"
+export type StatusRecebimento = "concluido" | "parcial" | "pendente" | "extra"
 
 export function statusDe(o: Ordem): StatusRecebimento {
+  if (o.qtdPlan === 0 && o.qtdEntrada > 0) return "extra"
   if (o.recebConcluido && o.qtdEntrada >= o.qtdPlan && o.qtdPlan > 0) return "concluido"
   if (o.qtdEntrada > 0) return "parcial"
   return "pendente"
@@ -13,6 +14,7 @@ export const statusLabel: Record<StatusRecebimento, string> = {
   concluido: "Concluído",
   parcial: "Parcial",
   pendente: "Pendente",
+  extra: "Extra",
 }
 
 export function parseData(d: string | null): Date | null {
@@ -66,6 +68,7 @@ export function resumo(lista: Ordem[]) {
   const concluidas = lista.filter((o) => statusDe(o) === "concluido").length
   const parciais = lista.filter((o) => statusDe(o) === "parcial").length
   const pendentes = lista.filter((o) => statusDe(o) === "pendente").length
+  const extras = lista.filter((o) => statusDe(o) === "extra").length
   const taxaAtend = totalQtd > 0 ? (totalEntrada / totalQtd) * 100 : 0
   return {
     total: lista.length,
@@ -75,6 +78,7 @@ export function resumo(lista: Ordem[]) {
     concluidas,
     parciais,
     pendentes,
+    extras,
     taxaAtend,
   }
 }
@@ -143,6 +147,7 @@ export function statusDistribuicao(lista: Ordem[]) {
     { status: "Concluído", qtd: r.concluidas, key: "concluido" },
     { status: "Parcial", qtd: r.parciais, key: "parcial" },
     { status: "Pendente", qtd: r.pendentes, key: "pendente" },
+    { status: "Extra", qtd: r.extras, key: "extra" },
   ]
 }
 

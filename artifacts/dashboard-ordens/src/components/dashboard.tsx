@@ -145,6 +145,7 @@ export function Dashboard({ view }: { view: View }) {
             <SelectItem value="concluido">Concluído</SelectItem>
             <SelectItem value="parcial">Parcial</SelectItem>
             <SelectItem value="pendente">Pendente</SelectItem>
+            <SelectItem value="extra">Extra</SelectItem>
           </SelectContent>
         </Select>
         <Select
