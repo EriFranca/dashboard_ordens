@@ -106,11 +106,28 @@ export function porUnidade(lista: Ordem[]) {
   return [...map.entries()].map(([unidade, qtd]) => ({ unidade, qtd }))
 }
 
+const PESO_KG_POR_UN: Record<string, number> = {
+  "254410": 0.4,
+  "251064": 0.15,
+  "254509": 0.4,
+  "255127": 0.15,
+  "251062": 0.15,
+  "251061": 0.15,
+  "251065": 0.15,
+  "251063": 0.15,
+  "255378": 0.15,
+}
+
+export function qtdEntradaEmKg(o: Ordem): number {
+  const fator = PESO_KG_POR_UN[o.material]
+  return fator != null ? o.qtdEntrada * fator : o.qtdEntrada
+}
+
 export function topMateriais(lista: Ordem[], n = 8) {
-  const map = new Map<string, { qtd: number; valor: number; ordens: number }>()
+  const map = new Map<string, { qtdKg: number; valor: number; ordens: number }>()
   for (const o of lista) {
-    const cur = map.get(o.material) ?? { qtd: 0, valor: 0, ordens: 0 }
-    cur.qtd += o.qtdPlan    // col V — planejado
+    const cur = map.get(o.material) ?? { qtdKg: 0, valor: 0, ordens: 0 }
+    cur.qtdKg += qtdEntradaEmKg(o)
     cur.valor += o.valor
     cur.ordens += 1
     map.set(o.material, cur)
@@ -121,7 +138,7 @@ export function topMateriais(lista: Ordem[], n = 8) {
       descricao: getMaterialDescricao(material),
       ...v,
     }))
-    .sort((a, b) => b.valor - a.valor)
+    .sort((a, b) => b.qtdKg - a.qtdKg)
     .slice(0, n)
 }
 

@@ -116,7 +116,7 @@ export function GraficoStatus({ data }: { data: { status: string; qtd: number }[
 export function GraficoMateriais({
   data,
 }: {
-  data: { material: string; descricao: string; valor: number; ordens: number }[]
+  data: { material: string; descricao: string; qtdKg: number; ordens: number }[]
 }) {
   const dados = data.map((d) => ({
     ...d,
@@ -125,12 +125,12 @@ export function GraficoMateriais({
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-base">Top materiais por valor de entrada</CardTitle>
-        <CardDescription>Valor de mercadoria recebida (EM) por material</CardDescription>
+        <CardTitle className="text-base">Top materiais por quantidade confirmada</CardTitle>
+        <CardDescription>Quantidade confirmada em KG por material</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer
-          config={{ valor: { label: "Valor", color: "var(--chart-1)" } }}
+          config={{ qtdKg: { label: "KG", color: "var(--chart-1)" } }}
           className="h-[300px] w-full"
         >
           <BarChart data={dados} layout="vertical" margin={{ left: 8, right: 16 }}>
@@ -148,12 +148,14 @@ export function GraficoMateriais({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(v) => formatMoeda(Number(v))}
+                  formatter={(v) =>
+                    Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(Number(v)) + " kg"
+                  }
                   labelKey="descricao"
                 />
               }
             />
-            <Bar dataKey="valor" fill="var(--color-valor)" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="qtdKg" fill="var(--color-qtdKg)" radius={[0, 4, 4, 0]} />
           </BarChart>
         </ChartContainer>
       </CardContent>
