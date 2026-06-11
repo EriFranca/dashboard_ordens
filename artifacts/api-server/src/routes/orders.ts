@@ -1,8 +1,14 @@
 import { Router } from "express"
-import { db, ordensTable, insertOrdemSchema } from "@workspace/db"
 import { eq, and, like, sql } from "drizzle-orm"
 
 const router = Router()
+
+async function getDb() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL não configurado")
+  }
+  return import("@workspace/db")
+}
 
 router.post("/sap/orders", async (req, res) => {
   const body = req.body
@@ -14,6 +20,16 @@ router.post("/sap/orders", async (req, res) => {
     })
     return
   }
+
+  let dbModule: Awaited<ReturnType<typeof getDb>>
+  try {
+    dbModule = await getDb()
+  } catch {
+    res.status(503).json({ success: false, error: "Banco de dados não configurado" })
+    return
+  }
+
+  const { db, ordensTable, insertOrdemSchema } = dbModule
 
   const invalid: number[] = []
   const valid = []
@@ -85,6 +101,16 @@ router.get("/orders", async (req, res) => {
 
   const limit = Math.min(Math.max(parseInt(String(rawLimit ?? "1000"), 10) || 1000, 1), 5000)
   const offset = Math.max(parseInt(String(rawOffset ?? "0"), 10) || 0, 0)
+
+  let dbModule: Awaited<ReturnType<typeof getDb>>
+  try {
+    dbModule = await getDb()
+  } catch {
+    res.status(503).json({ error: "Banco de dados não configurado" })
+    return
+  }
+
+  const { db, ordensTable } = dbModule
 
   try {
     const conditions = []
