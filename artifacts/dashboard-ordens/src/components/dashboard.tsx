@@ -1,5 +1,6 @@
 
 import { useMemo, useState } from "react"
+import { useConversoesKg } from "@/lib/conversoes-context"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -52,7 +53,8 @@ export function Dashboard({ view }: { view: View }) {
   const r = useMemo(() => resumo(lista), [lista])
   const fluxo = useMemo(() => porDia(lista), [lista])
   const dist = useMemo(() => statusDistribuicao(lista), [lista])
-  const mats = useMemo(() => topMateriais(lista), [lista])
+  const { conversoesKg } = useConversoesKg()
+  const mats = useMemo(() => topMateriais(lista, conversoesKg), [lista, conversoesKg])
   const unidades = useMemo(() => porUnidade(lista), [lista])
   const categorias = useMemo(() => porCategoria(lista), [lista])
 
