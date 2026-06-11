@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/api/sap/sync", async (req, res) => {
+router.post("/sap/sync", async (req, res) => {
   try {
     const startTime = performance.now();
     const duration = performance.now() - startTime;
@@ -27,7 +27,7 @@ router.post("/api/sap/sync", async (req, res) => {
   }
 });
 
-router.get("/api/sap/sync", async (req, res) => {
+router.get("/sap/sync", async (req, res) => {
   try {
     res.json({
       isRunning: false,

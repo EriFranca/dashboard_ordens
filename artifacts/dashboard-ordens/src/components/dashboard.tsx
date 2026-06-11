@@ -1,6 +1,7 @@
 
 import { useMemo, useState } from "react"
 import { useConversoesKg } from "@/lib/conversoes-context"
+import { parseData } from "@/lib/metrics"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -44,7 +45,8 @@ export function Dashboard({ view }: { view: View }) {
   const ordensFiltradasPorData = useMemo(() => {
     if (!dateRange.start || !dateRange.end) return todasOrdens
     return todasOrdens.filter((ordem) => {
-      const dataAbertura = new Date(ordem.dtAbertura ?? '')
+      const dataAbertura = parseData(ordem.dtAbertura ?? null)
+      if (!dataAbertura) return false
       return dataAbertura >= dateRange.start! && dataAbertura <= dateRange.end!
     })
   }, [dateRange])
